@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARMS — Academic Resource Management System</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <button class="brand" onclick="navigateTo('role')"><span class="logo">AR</span><b>ARMS</b></button>
+    
+    <div id="searchWrap" class="search hidden">
+      <input id="globalSearch" placeholder="Search notes...">
+      <button id="searchBtn" type="button">⌕</button>
+    </div>
+
+    <nav id="nav">
+      <!-- Student Navigation -->
+      <div id="studentNav" class="nav-group hidden">
+        <div class="navdrop">
+          <button class="nav-btn">Manage Notes ▾</button>
+          <div class="dropdown">
+            <button onclick="navigateTo('browse')">Browse Notes</button>
+            <button onclick="navigateTo('myNotes')">My Notes</button>
+            <button onclick="navigateTo('upload')">Upload Notes</button>
+          </div>
+        </div>
+        <div class="navdrop">
+          <button class="nav-btn">🔔</button>
+          <div class="dropdown dropdown-right">
+            <b>Notifications</b>
+            <hr>
+            <p><b>Your resource received a new rating</b><br><small>A student rated your note 5 ★</small></p>
+            <button onclick="navigateTo('notifications')">See all notifications</button>
+          </div>
+        </div>
+        <div class="navdrop">
+          <button class="nav-btn">👤</button>
+          <div class="dropdown dropdown-right">
+            <button onclick="navigateTo('profile')">My Profile</button>
+            <button onclick="signOut()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Navigation -->
+      <div id="adminNav" class="nav-group hidden">
+        <div class="navdrop">
+          <button class="nav-btn">Admin Menu ▾</button>
+          <div class="dropdown">
+            <button onclick="navigateTo('admin')">Overview</button>
+            <button onclick="navigateTo('review')">Review Queue</button>
+            <button onclick="navigateTo('reports')">Reports</button>
+            <button onclick="navigateTo('students')">Students List</button>
+          </div>
+        </div>
+        <div class="navdrop">
+          <button class="nav-btn">🔔</button>
+          <div class="dropdown dropdown-right">
+            <b>Notifications</b>
+            <hr>
+            <p><b>New note submitted</b><br><small>A student upload is ready for review.</small></p>
+            <button onclick="navigateTo('notifications')">See all notifications</button>
+          </div>
+        </div>
+        <div class="navdrop">
+          <button class="nav-btn">👤</button>
+          <div class="dropdown dropdown-right">
+            <button onclick="signOut()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- VIEW: ROLE SELECT -->
+    <section id="view-role" class="view active center">
+      <h1>Who Are You?</h1>
+      <p class="muted">Choose how you want to enter ARMS.</p>
+      <div class="role-grid">
+        <button class="role" onclick="navigateTo('adminLogin')"><span class="ico">🛡️</span>ADMIN</button>
+        <button class="role" onclick="navigateTo('studentLogin')"><span class="ico">🎓</span>STUDENT</button>
+      </div>
+    </section>
+
+    <!-- VIEW: STUDENT LOGIN -->
+    <section id="view-studentLogin" class="view center panel">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('role')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">Student Sign In</span>
+      </nav>
+      <div style="font-size:42px">🎓</div>
+      <h1>Student Sign In</h1>
+      <p>Not registered? <button class="btn" onclick="navigateTo('register')">Register</button></p>
+      <form id="studentLoginForm" class="form">
+        <label>Email <input type="email" required placeholder="Enter your email"></label>
+        <label>Password <input type="password" required placeholder="Enter your password"></label>
+        <button type="submit" class="btn primary">SIGN IN</button>
+      </form>
+    </section>
+
+    <!-- VIEW: ADMIN LOGIN -->
+    <section id="view-adminLogin" class="view center panel">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('role')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">Admin Sign In</span>
+      </nav>
+      <div style="font-size:42px">🛡️</div>
+      <h1>Admin Sign In</h1>
+      <form id="adminLoginForm" class="form">
+        <label>Email <input type="email" required placeholder="Enter your email"></label>
+        <label>Password <input type="password" required placeholder="Enter your password"></label>
+        <button type="submit" class="btn primary">SIGN IN</button>
+      </form>
+    </section>
+
+    <!-- VIEW: REGISTER -->
+    <section id="view-register" class="view center panel">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('role')">Home</button>
+        <span class="sep">/</span>
+        <button onclick="navigateTo('studentLogin')">Student Sign In</button>
+        <span class="sep">/</span>
+        <span class="active">Register</span>
+      </nav>
+      <h1>Create new Account</h1>
+      <p>Already registered? <button class="btn" onclick="navigateTo('studentLogin')">Login</button></p>
+      <form id="registerForm" class="form two">
+        <label class="span2">Full Name *<input required placeholder="Enter your full name"></label>
+        <label>Email *<input type="email" required placeholder="Enter your student email"></label>
+        <label>Course *<input required placeholder="e.g. BSc Computer Science"></label>
+        <label>Password *<input type="password" required placeholder="Create a password"></label>
+        <label>Year of Study *
+          <select required>
+            <option value="" selected disabled>Select year</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </label>
+        <button type="submit" class="btn primary span2">SIGN UP</button>
+      </form>
+    </section>
+
+    <!-- VIEW: STUDENT HOME -->
+    <section id="view-home" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('home')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">Dashboard</span>
+      </nav>
+      <div class="toolbar">
+        <div>
+          <h1>Hi, STUDENT!</h1>
+          <p class="muted">Browse and share study notes with your community.</p>
+        </div>
+      </div>
+      <div id="homeCards" class="cards"></div>
+    </section>
+
+    <!-- VIEW: BROWSE NOTES -->
+    <section id="view-browse" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('home')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">Browse Notes</span>
+      </nav>
+      <div class="toolbar">
+        <div>
+          <h1>Browse notes</h1>
+          <p class="muted">Everything here has been approved by an administrator.</p>
+        </div>
+        <div class="tabs">
+          <button class="pill">All categories</button>
+          <button class="pill">Every subject</button>
+        </div>
+      </div>
+      <p id="browseCount">0 notes available</p>
+      <div id="browseCards" class="cards"></div>
+    </section>
+
+    <!-- VIEW: UPLOAD NOTES -->
+    <section id="view-upload" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('home')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">Upload Notes</span>
+      </nav>
+      <div class="toolbar">
+        <div>
+          <h1>UPLOAD YOUR NOTES HERE!</h1>
+          <p class="muted">Add one file with a short description. Administrator checks new uploads before they appear in browse.</p>
+        </div>
+      </div>
+      <form id="uploadForm" class="form two panel upload-form">
+        <label>Title *<input id="uploadTitle" required placeholder="Enter a clear title for your notes"></label>
+        <label class="span2">What do these notes cover? *<textarea id="uploadDesc" maxlength="600" required placeholder="Briefly describe what the notes cover..."></textarea></label>
+        <label>Subject *<input id="uploadSubject" required placeholder="Enter subject name"></label>
+        <label>Category *
+          <select id="uploadCategory">
+            <option>Lecture Notes</option>
+            <option>Lab Report</option>
+            <option>Cheat Sheet</option>
+            <option>Past Year Papers</option>
+            <option>Summaries</option>
+            <option>Tutorial Solutions</option>
+            <option>Handwritten Notes</option>
+          </select>
+        </label>
+        <label>Tags<input placeholder="e.g. arrays, sorting, week 4"></label>
+        <label class="span2">File *
+          <div class="drop">
+            <input id="uploadFile" type="file" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" required>
+            <p>PDF, image, text or document. Up to 100 MB</p>
+          </div>
+        </label>
+        <div class="span2 actions">
+          <button type="submit" class="btn primary">Upload notes</button>
+          <button type="button" class="btn" onclick="navigateTo('home')">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- VIEW: MY NOTES -->
+    <section id="view-myNotes" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('home')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">My Notes</span>
+      </nav>
+      <h1>My Notes</h1>
+      <div class="stats">
+        <div class="stat"><b id="statShared">0</b>Notes shared</div>
+        <div class="stat"><b>64</b>Downloads</div>
+        <div class="stat"><b>5</b>Average rating</div>
+        <div class="stat"><b id="statReview">0</b>Awaiting review</div>
+      </div>
+      <div class="tabs" style="margin-bottom:18px">
+        <button class="pill">ALL</button>
+        <button class="pill live">LIVE</button>
+        <button class="pill wait">WAITING FOR REVIEW</button>
+        <button class="pill no">NOT APPROVED</button>
+      </div>
+      <div id="myNotesTableWrap"></div>
+    </section>
+
+    <!-- VIEW: PROFILE -->
+    <section id="view-profile" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('home')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">My Profile</span>
+      </nav>
+      <h1>My Profile</h1>
+      <p class="muted">Your name and course show next to every note you share.</p>
+      <div class="panel profile">
+        <div class="avatar">AR</div>
+        <div>
+          <h3>Aisha Rahman</h3>
+          <div class="muted">BSc Computer Science, Year 2 · aisha@student.edu<br>Joined Jan 7, 2026 · 3 notes shared · 2 ratings given</div>
+        </div>
+      </div>
+      <br>
+      <form id="profileForm" class="form two panel">
+        <h2 class="span2">Personal Details</h2>
+        <label>Full Name *<input value="Aisha Rahman" required></label>
+        <label>About you<textarea>Second-year CS. I type up every lecture, so you don’t have to.</textarea></label>
+        <label>Email *<input value="aisha@student.edu" required></label>
+        <label>Course and Year<input value="BSc Computer Science, Year 2"></label>
+        <button type="submit" class="btn primary">Save changes</button>
+      </form>
+      <br>
+      <form id="passForm" class="form panel">
+        <h2>Password</h2>
+        <p class="muted">Choose something you don’t use elsewhere.</p>
+        <label>Current password *<input type="password" required></label>
+        <div class="split">
+          <label>New password *<input type="password" required></label>
+          <label>Confirm new password *<input type="password" required></label>
+        </div>
+        <button type="submit" class="btn primary">Change password</button>
+      </form>
+    </section>
+
+    <!-- VIEW: NOTIFICATIONS -->
+    <section id="view-notifications" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('home')">Home</button>
+        <span class="sep">/</span>
+        <span class="active">Notifications</span>
+      </nav>
+      <h1>Notifications</h1>
+      <p class="muted">Reviews, ratings, comments and account changes, newest first.</p>
+      <div class="panel">
+        <div class="comment">
+          <b>Daniel Okoye rated your note 5 ★</b><br>
+          Binary search trees: rotations and balance<br>
+          <span class="muted">3 days ago</span>
+        </div>
+        <div class="comment">
+          <b>Your note was approved</b><br>
+          Discrete Maths Formula Sheet is now visible to everyone<br>
+          <span class="muted">Sep 12, 2026</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: ADMIN OVERVIEW -->
+    <section id="view-admin" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('admin')">Admin</button>
+        <span class="sep">/</span>
+        <span class="active">Overview</span>
+      </nav>
+      <div class="toolbar">
+        <div>
+          <h1>Overview</h1>
+        </div>
+      </div>
+      <div class="notice">
+        ⚑ <b id="adminNoticeText">0 notes are waiting for review and 1 report is open</b><br>
+        <span class="muted">Students can’t see a note until you approve it.</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="statLive">0</b>Notes live</div>
+        <div class="stat"><b id="statQueue">0</b>In the queue</div>
+        <div class="stat"><b id="statStudents">0</b>Students</div>
+        <div class="stat"><b>167</b>Downloads</div>
+        <div class="stat"><b>8</b>Ratings given</div>
+      </div>
+      <h2>Review Queue</h2>
+      <div id="adminOverviewTableWrap"></div>
+    </section>
+
+    <!-- VIEW: ADMIN REVIEW QUEUE -->
+    <section id="view-review" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('admin')">Admin</button>
+        <span class="sep">/</span>
+        <span class="active">Review Queue</span>
+      </nav>
+      <div class="toolbar">
+        <div>
+          <h1>Review Notes</h1>
+        </div>
+        <div class="tabs">
+          <button class="pill">ALL</button>
+          <button class="pill live">LIVE</button>
+          <button class="pill wait" id="reviewCountPill">WAITING FOR REVIEW</button>
+          <button class="pill no">NOT APPROVED</button>
+        </div>
+      </div>
+      <div id="adminReviewTableWrap"></div>
+    </section>
+
+    <!-- VIEW: ADMIN REPORTS -->
+    <section id="view-reports" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('admin')">Admin</button>
+        <span class="sep">/</span>
+        <span class="active">Reports</span>
+      </nav>
+      <h1>Reports</h1>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Note</th><th>Reported by</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Week 6 tutorial solutions — linear algebra</td>
+              <td>Mei Lin Tan</td>
+              <td>Academic integrity</td>
+              <td><span class="pill wait">Open</span></td>
+              <td class="actions">
+                <button class="btn" onclick="toast('Opening report...')">OPEN</button>
+                <button class="btn good" onclick="toast('Report resolved')">RESOLVE</button>
+                <button class="btn danger" onclick="toast('Report rejected')">REJECT</button>
+              </td>
+            </tr>
+            <tr>
+              <td>2023 final paper with worked answers</td>
+              <td>Daniel Okoye</td>
+              <td>Wrong information</td>
+              <td><span class="pill live">Resolved</span></td>
+              <td class="actions">
+                <button class="btn" onclick="toast('Opening report...')">OPEN</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VIEW: ADMIN STUDENTS LIST -->
+    <section id="view-students" class="view">
+      <nav class="breadcrumb">
+        <button onclick="navigateTo('admin')">Admin</button>
+        <span class="sep">/</span>
+        <span class="active">Students List</span>
+      </nav>
+      <div class="toolbar">
+        <h1>Students List</h1>
+        <input id="studentSearchInput" placeholder="Search by name, email, or course" style="padding:11px;border:1px solid var(--line);border-radius:12px;min-width:280px">
+      </div>
+      <div id="studentsTableWrap"></div>
+    </section>
+  </main>
+
+  <footer>ARMS · Academic Resource Management System</footer>
+
+  <!-- SUPPORT FAB -->
+  <button id="chatFab" class="fab hidden" aria-label="Support">💬</button>
+
+  <!-- OVERLAY MODAL -->
+  <div id="overlay" class="overlay hidden">
+    <div id="modalContent" class="modal"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
