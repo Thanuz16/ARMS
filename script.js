@@ -6,17 +6,22 @@ let state = {
   user: null,
   activeMyNotesFilter: 'ALL',
   activeAdminReviewFilter: 'ALL',
-  studentMessages: [],
-  supportRequests: [],
+  studentMessages: [
+    { sender: 'Admin', text: 'Welcome to ARMS support! How can we help you today?', time: 'Yesterday' }
+  ],
+  supportRequests: [
+    { id: 101, from: 'Danish Irfan', email: 'danish@student.edu', role: 'Student', msg: 'Unable to download operating system solutions PDF.', status: 'Open', time: '10 mins ago' },
+    { id: 102, from: 'Siti Sarah', email: 'siti@guest.com', role: 'Guest', msg: 'Having issues registering my student email address.', status: 'Open', time: '1 hour ago' }
+  ],
   notes: [
-    { id: 1, cat: 'Lecture Notes', subject: 'Artificial Intelligence', title: 'Intro to Neural Networks & Deep Learning', desc: 'Perceptrons, activation functions, and backpropagation explained with visual diagrams.', by: 'Zara', rating: 5, downloads: 24, status: 'Live' },
-    { id: 2, cat: 'Cheat Sheet', subject: 'Cybersecurity', title: 'Linux Command Line & Nmap Reference', desc: 'Essential terminal commands, file permissions, and network scanning flags for labs.', by: 'Danish', rating: 4, downloads: 15, status: 'Live' },
-    { id: 3, cat: 'Past Year Papers', subject: 'Operating Systems', title: '2025 Final Exam Solutions', desc: 'Worked solutions covering process scheduling, deadlocks, and virtual memory management.', by: 'Mei Ling', rating: 5, downloads: 17, status: 'Waiting for review' },
-    { id: 4, cat: 'Summaries', subject: 'Software Engineering', title: 'Agile & Scrum Framework Guide', desc: 'Breakdown of sprint ceremonies, user stories, velocity tracking, and key team roles.', by: 'Sharath', rating: 4, downloads: 9, status: 'Waiting for review' }
+    { id: 1, cat: 'Lecture Notes', subject: 'Artificial Intelligence', title: 'Intro to Neural Networks & Deep Learning', desc: 'Perceptrons, activation functions, and backpropagation explained with visual diagrams.', by: 'Zara Sofea', rating: 5, downloads: 24, status: 'Live' },
+    { id: 2, cat: 'Cheat Sheet', subject: 'Cybersecurity', title: 'Linux Command Line & Nmap Reference', desc: 'Essential terminal commands, file permissions, and network scanning flags for labs.', by: 'Danish Irfan', rating: 4, downloads: 15, status: 'Live' },
+    { id: 3, cat: 'Past Year Papers', subject: 'Operating Systems', title: '2025 Final Exam Solutions', desc: 'Worked solutions covering process scheduling, deadlocks, and virtual memory management.', by: 'Tan Mei Ling', rating: 5, downloads: 17, status: 'Waiting for review' },
+    { id: 4, cat: 'Summaries', subject: 'Software Engineering', title: 'Agile & Scrum Framework Guide', desc: 'Breakdown of sprint ceremonies, user stories, velocity tracking, and key team roles.', by: 'Sharath Krishnan', rating: 4, downloads: 9, status: 'Waiting for review' }
   ],
   reports: [
-    { id: 1, noteTitle: 'Week 6 tutorial solutions — linear algebra', reportedBy: 'Mei Lin Tan', reason: 'Academic integrity', status: 'Open', desc: 'Solutions match official solution manual word-for-word without permission.' },
-    { id: 2, noteTitle: '2023 final paper with worked answers', reportedBy: 'Daniel Okoye', reason: 'Wrong information', status: 'Resolved', desc: 'Question 4 answer has incorrect matrix calculation.' }
+    { id: 1, noteTitle: '2025 Final Exam Solutions', reportedBy: 'Zara Sofea', reason: 'Academic integrity', status: 'Open', desc: 'Solutions match official solution manual word-for-word without permission.' },
+    { id: 2, noteTitle: 'Linux Command Line & Nmap Reference', reportedBy: 'Sharath Krishnan', reason: 'Wrong information', status: 'Resolved', desc: 'Question 4 command syntax contains a typo.' }
   ],
   students: [
     ['Zara Sofea', 'zara@student.edu', 'BSc Artificial Intelligence, Year 2', 5, 'Active'],
@@ -245,7 +250,7 @@ function renderBrowse(q = '') {
 
 function renderMyNotes(filter = 'ALL') {
   state.activeMyNotesFilter = filter;
-  const myNotes = state.notes.filter(n => n.by === 'Student');
+  const myNotes = state.notes.filter(n => n.by === 'Student' || n.by === 'Zara Sofea');
   const awaitingCount = myNotes.filter(n => n.status === 'Waiting for review').length;
   const totalDownloads = myNotes.reduce((sum, n) => sum + (n.downloads || 0), 0);
   const avgRating = myNotes.length ? (myNotes.reduce((sum, n) => sum + (n.rating || 0), 0) / myNotes.length).toFixed(1) : '0';
@@ -308,7 +313,6 @@ function renderAdminReview(filter = 'ALL') {
   $('#adminReviewTableWrap').innerHTML = createNotesTableHTML(filteredNotes, false, true);
 }
 
-// Global Reports Functions
 function renderReports() {
   if (!state.reports.length) {
     $('#reportsTableWrap').innerHTML = `<div class="panel center"><p class="muted">No reports found.</p></div>`;
@@ -438,7 +442,14 @@ function deleteStudentModal(email) {
   };
 }
 
-// Bind all handlers to Window for global HTML event access
+function resolveTicket(id) {
+  const req = state.supportRequests.find(r => r.id === id);
+  if (req) req.status = 'Resolved';
+  toast('Support ticket resolved');
+  chatFab.click();
+}
+
+// Global Window Function Bindings
 window.navigateTo = navigateTo;
 window.signOut = signOut;
 window.openNoteModal = openNoteModal;
@@ -452,6 +463,7 @@ window.resolveReport = resolveReport;
 window.rejectReport = rejectReport;
 window.toggleStudentStatus = toggleStudentStatus;
 window.deleteStudentModal = deleteStudentModal;
+window.resolveTicket = resolveTicket;
 window.toast = toast;
 window.closeModal = closeModal;
 
@@ -485,7 +497,7 @@ $('#uploadForm').onsubmit = e => {
     subject: $('#uploadSubject').value,
     title: $('#uploadTitle').value,
     desc: $('#uploadDesc').value,
-    by: 'Student',
+    by: 'Zara Sofea',
     rating: 0,
     downloads: 0,
     status: 'Waiting for review',
@@ -502,44 +514,96 @@ $('#searchBtn').onclick = () => navigateTo('browse', $('#globalSearch').value);
 $('#globalSearch').onkeydown = e => { if (e.key === 'Enter') navigateTo('browse', e.target.value); };
 $('#studentSearchInput').oninput = e => renderStudents(e.target.value);
 
+// Role-Based Support Modal Logic
 chatFab.onclick = () => {
-  if (!state.user) {
+  if (!state.role) {
     showModal(`
       <div class="modal-head">
-        <div><h2>Contact Support</h2><div class="muted">Having trouble accessing ARMS? Send us a request.</div></div>
+        <div>
+          <h2>Contact Support (Guest)</h2>
+          <div class="muted">Need help logging in or registering? Send us a ticket.</div>
+        </div>
         <button class="close" data-close>×</button>
       </div>
       <form id="guestSupportForm" class="form">
-        <label>Your Name *<input name="name" required placeholder="Enter your name"></label>
-        <label>Your Email *<input name="email" type="email" required placeholder="Enter your email"></label>
-        <label>Message *<textarea name="message" maxlength="600" required placeholder="Tell us what happened"></textarea></label>
-        <button class="btn primary">Submit request</button>
+        <label>Your Name *<input id="guestName" required placeholder="Enter your full name"></label>
+        <label>Your Email *<input id="guestEmail" type="email" required placeholder="Enter your email"></label>
+        <label>Message *<textarea id="guestMsg" maxlength="600" required placeholder="Describe your issue..."></textarea></label>
+        <button type="submit" class="btn primary">Submit Support Ticket</button>
       </form>
     `);
     $('#guestSupportForm').onsubmit = e => {
       e.preventDefault();
+      state.supportRequests.unshift({
+        id: Date.now(),
+        from: $('#guestName').value,
+        email: $('#guestEmail').value,
+        role: 'Guest',
+        msg: $('#guestMsg').value,
+        status: 'Open',
+        time: 'Just now'
+      });
       closeModal();
-      toast('Support request submitted');
+      toast('Support ticket submitted!');
     };
-  } else {
+  } else if (state.role === 'student') {
     showModal(`
       <div class="modal-head">
-        <div><h2>ARMS Support</h2><div class="muted">Usually replies within a day</div></div>
+        <div>
+          <h2>Student Helpdesk Chat</h2>
+          <div class="muted">Connected with ARMS Support Team</div>
+        </div>
         <button class="close" data-close>×</button>
       </div>
-      <div class="support-messages">
-        <div class="chat-empty"><strong>How can we help you?</strong><p>Send a message to start a conversation.</p></div>
+      <div class="support-messages" id="studentChatWrap">
+        ${state.studentMessages.map(m => `
+          <div class="chat-message ${m.sender === 'Student' ? 'mine' : ''}">
+            <b>${m.sender}</b>:${m.text}
+            <small>${m.time}</small>
+          </div>
+        `).join('')}
       </div>
-      <form id="chatForm" class="form">
-        <label>Message<textarea required placeholder="Write a message..."></textarea></label>
-        <button class="btn primary">Send message</button>
+      <form id="studentChatForm" class="form" style="margin-top:12px;">
+        <div style="display:flex; gap:8px;">
+          <input id="studentChatInput" style="flex:1; padding:10px; border:1px solid var(--line); border-radius:10px;" required placeholder="Type your message...">
+          <button type="submit" class="btn primary">Send</button>
+        </div>
       </form>
     `);
-    $('#chatForm').onsubmit = e => {
+    $('#studentChatForm').onsubmit = e => {
       e.preventDefault();
+      const txt = $('#studentChatInput').value.trim();
+      if (!txt) return;
+      state.studentMessages.push({ sender: 'Student', text: txt, time: 'Just now' });
+      chatFab.click();
       toast('Message sent');
-      closeModal();
     };
+  } else if (state.role === 'admin') {
+    const openTickets = state.supportRequests.filter(r => r.status === 'Open');
+    showModal(`
+      <div class="modal-head">
+        <div>
+          <h2>Admin Helpdesk Console</h2>
+          <div class="muted">${openTickets.length} open ticket(s) waiting</div>
+        </div>
+        <button class="close" data-close>×</button>
+      </div>
+      <div style="max-height:360px; overflow-y:auto; display:grid; gap:10px;">
+        ${state.supportRequests.length ? state.supportRequests.map(req => `
+          <div class="panel" style="padding:12px; background:#fff; border:1px solid var(--line); border-radius:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <b>${req.from} <span class="muted">(${req.role})</span></b>
+              <span class="pill ${req.status === 'Resolved' ? 'live' : 'wait'}">${req.status}</span>
+            </div>
+            <div class="muted" style="font-size:12px; margin:2px 0 8px;">${req.email} ·${req.time}</div>
+            <p style="margin:0 0 10px; font-size:14px;">"${req.msg}"</p>
+            ${req.status === 'Open' ? `
+              <button class="btn good" style="padding:5px 12px; font-size:12px;" onclick="resolveTicket(${req.id})">RESOLVE TICKET</button>
+            ` : ''}
+          </div>
+        `).join('') : `<p class="muted center">No support tickets found.</p>`}
+      </div>
+    `);
   }
 };
 
